@@ -10,7 +10,7 @@ def check(df, caption, length = 10):
 
 def attatch_feature(train, user_info, user_log: pd.DataFrame):
     """ Attach features in user_info & user_log into the train dataset.
-        Features including:
+        Basic features including:
         1. User age range
         2. User gender
         3. Number of logs of this user in this merchant
@@ -68,10 +68,38 @@ def attatch_feature(train, user_info, user_log: pd.DataFrame):
         return y
 
     # Join user_log
-    merge_col({ "item_id": "log_num" }, False)
-    merge_col({ "item_id": "item_num" })
-    merge_col({ "cat_id": "category_num" })
-    merge_col({ "time_stamp": "browse_days_num" })
+    train = merge_col({ "item_id": "log_num" }, False)
+    train = merge_col({ "item_id": "item_num" })
+    train = merge_col({ "cat_id": "category_num" })
+    train = merge_col({ "time_stamp": "browse_days_num" })
+
+    # Handle actions
+    # Count out the times of action
+    x = user_log[["user_id", "merchant_id", "action_type", "item_id"]]
+    x = x.groupby([x["user_id"], x["merchant_id"], x["action_type"]]).count()
+    x = x.reset_index()
+    x = x.rename(columns = { "item_id": "count" })
+
+    # Split into different cols according to action type
+    x["click_num"] = (x["action_type"] == 0) * x["count"]
+    x["cart_num"] = (x["action_type"] == 1) * x["count"]
+    x["purchase_num"] = (x["action_type"] == 2) * x["count"]
+    x["favourite_num"] = (x["action_type"] == 3) * x["count"]
+    x = x.drop(["action_type", "count"], axis = 1)
+
+    # Sum all up & merge
+    x = x.groupby([x["user_id"], x["merchant_id"]]).sum()
+    train = pd.merge(train, x, how = "left", on = UM_PAIR)
+    if debug:
+        check(train, "After attaching action")
+
+    # Fill all the null
+    train = train.fillna(method = "ffill")
+
+    print("Finish attaching features, info:")
+    print(train.info())
+
+    return train
 
 def train(train, validate, user_info, user_log):
     attatch_feature(train, user_info, user_log)
