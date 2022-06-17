@@ -17,6 +17,12 @@ def read_user_info():
     return user_info
 
 def read_user_log():
+    user_log = pd.read_csv(config["user_log_path"])
+
+    print("Successfully load user log:")
+    print(user_log.info())
+    print(user_log.head())
+    return user_log
     # TODO: Read user log
     
     user_log = pd.read_csv(config["user_log_path"])
