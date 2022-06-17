@@ -21,6 +21,7 @@ def attatch_feature(df, user_info, user_log):
         8. Number of purchasings
         9. Number of favourite addings
     """
+    print("Start attaching feature")
     debug = config.get("debug", False)
     if debug:
         check(df, "Before feature-attaching")

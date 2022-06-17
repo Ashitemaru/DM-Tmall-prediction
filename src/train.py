@@ -1,4 +1,4 @@
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
 from feature import attatch_feature
@@ -16,7 +16,7 @@ def train(train, user_info, user_log):
     label_train, label_validate, input_train, input_validate = train_test_split(
         label, input_,
         test_size = 0.2,
-        random_state = 114514
+        random_state = 0
     )
 
     # Model dictionary
@@ -25,12 +25,18 @@ def train(train, user_info, user_log):
     # Traverse model types
     for model_type in config["model_types"]:
         # Get the model
-        model = get_model(input_train, label_train, model_type)
+        model = get_model(model_type)
+
+        # Train
+        model.fit(input_train, label_train)
 
         # Evaluation on validate set
+        label_validate_model = model.predict(input_validate)
         proba_validate_model = model.predict_proba(input_validate)
+        acc = accuracy_score(label_validate, label_validate_model)
         ra_score = roc_auc_score(label_validate, proba_validate_model[:, 1])
 
+        print(f"ACC score for model {model_type}: {acc}")
         print(f"ROC-AUC score for model {model_type}: {ra_score}")
 
         model_dict[model_type] = model
