@@ -19,7 +19,14 @@ def read_user_info():
 def read_user_log():
     # TODO: Read user log
     
-    return {}
+    user_log = pd.read_csv(config["user_log_path"])
+
+    print("Successfully load user log:")
+    print(user_log.info())
+    print(user_log.isnull().sum(axis=0))
+
+    return user_log
+    #return {}
 
 if __name__ == "__main__":
     print("Use this module by import-ing it.")

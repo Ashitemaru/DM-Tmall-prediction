@@ -48,6 +48,15 @@ def analysis_user_log(user_log):
             return user_log.isna().sum()[key]
         else:
             return user_log[user_log[key] == x][key].count()
+    # Time stamp hist
+    time_bins = np.array([
+        510, 611, 711, 811, 911, 1011, 1115
+    ])
+    plt.figure()
+    plt.hist(user_log['time_stamp'], bins = time_bins, label="Time stamp")
+    plt.grid(alpha = 0.5)
+    plt.title("Log time histogram")
+    plt.savefig("../image/user_log_time.png")
 
 def analysis(user_info, user_log):
     analysis_user_info(user_info)
