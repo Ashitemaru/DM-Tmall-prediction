@@ -8,4 +8,5 @@ config = {
 
     "train_validate_ratio": 4,
     "debug": True,
+    "model": ["Logistic"],
 }

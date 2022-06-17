@@ -1,6 +1,9 @@
 import pandas as pd
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
 
 from config import config
+from model import *
 
 def check(df, caption, length = 10):
     print("\n========== CHECK BEG ==========")
@@ -76,9 +79,34 @@ def attatch_feature(train, user_info, user_log):
     train = merge_col(train, UM_PAIR, { "cat_id": "category_num" })
     train = merge_col(train, UM_PAIR, { "time_stamp": "browse_days_num" })
 
-def train(train, validate, user_info, user_log):
-    attatch_feature(train, user_info, user_log)
-    # attatch_feature(validate, user_info, user_log)
+    return train
+
+def train(train, user_info, user_log):
+    train_data = attatch_feature(train, user_info, user_log)
+    print("Finish attatch feature")
+    print(train_data.info())
+    label = train_data["label"]
+    input = train_data.drop(['user_id','merchant_id','label'],axis = 1)
+    label_train, label_test, input_train, input_test = train_test_split(label, input, test_size=0.2, random_state=114514)
+    return label_train, label_test, input_train, input_test
+    
+# attention the order of params
+def launch_model_train(model, label_train, label_test, input_train, input_test):
+    print("start train model:", model)
+
+    # can add other models, in model.py
+    if (model == "Logistic"):
+        md = model_logistic(label_train, input_train)
+
+    ans_label = md.predict(input_test) # return 0/1
+    ans_prb = md.predict_proba(input_test) # return probability
+    print(ans_label[0:100])
+
+    ra_store = roc_auc_score(label_test, ans_prb[:, 1])
+    print(ra_store)
+
+    return md
+
 
 if __name__ == "__main__":
     print("Use this module by import-ing it.")

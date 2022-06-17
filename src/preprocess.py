@@ -29,7 +29,7 @@ def read_train():
 
     print("Successfully load train dataset:")
     print(train_df.info())
-
+    '''
     # Separate to get train & validate
     tot_length = train_df.shape[0]
     ratio = int(config.get("train_validate_ratio", 4))
@@ -45,8 +45,18 @@ def read_train():
     validate = shuffled_train_df.tail(validate_length)
     train = shuffled_train_df.head(train_length)
     print(f"Splitted data set: TRAIN = {train.shape[0]}, VALIDATE = {validate.shape[0]}")
+    '''
+    return train_df
 
-    return train, validate
+def read_test():
+    test_df = pd.read_csv(config["test_path"])
+
+    print("Successfully load train dataset:")
+    print(test_df.info())
+
+    return test_df
+
+
 
 if __name__ == "__main__":
     print("Use this module by import-ing it.")
