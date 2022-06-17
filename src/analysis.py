@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from feature import attatch_feature
+
 def analysis_user_info(user_info):
     def get_cnt(x, key):
         if x is None:
@@ -48,19 +50,23 @@ def analysis_user_log(user_log):
             return user_log.isna().sum()[key]
         else:
             return user_log[user_log[key] == x][key].count()
+
     # Time stamp hist
     time_bins = np.array([
         510, 611, 711, 811, 911, 1011, 1115
     ])
     plt.figure()
-    plt.hist(user_log['time_stamp'], bins = time_bins, label="Time stamp")
+    plt.hist(user_log["time_stamp"], bins = time_bins, label = "Time stamp")
     plt.grid(alpha = 0.5)
     plt.title("Log time histogram")
     plt.savefig("../image/user_log_time.png")
 
-def analysis(user_info, user_log):
+def analysis(user_info, user_log, train):
     analysis_user_info(user_info)
     analysis_user_log(user_log)
+
+    featured_train = attatch_feature(train, user_info, user_log)
+    # TODO: Draw images
 
 if __name__ == "__main__":
     print("Use this module by import-ing it.")
