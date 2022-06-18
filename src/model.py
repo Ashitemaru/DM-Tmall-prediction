@@ -2,6 +2,7 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
 
 def get_model(model_type):
 	# TODO: More model types
@@ -10,9 +11,9 @@ def get_model(model_type):
 
 	elif model_type == "MLP":
 		return MLPClassifier(
-			solver = "lbfgs",
+			solver = "adam",
 			activation = "relu",
-			alpha = 0.1,
+			alpha = 1e-3,
 			random_state = 0,
 			hidden_layer_sizes = [10, 10]
 		)
@@ -25,6 +26,9 @@ def get_model(model_type):
 
 	elif model_type == "Grad-tree":
 		return GradientBoostingClassifier(random_state = 0)
+
+	elif model_type == "Xgboost":
+		return XGBClassifier()
 
 	else:
 		print("Unknown model type. Aborted.")

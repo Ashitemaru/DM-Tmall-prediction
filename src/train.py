@@ -67,6 +67,7 @@ def train(train_data):
     return model_dict
 
 def generate_answer(test_data, model):
+    return
     test_data["prob"] = model.predict_proba(
         test_data.drop(["user_id", "merchant_id", "prob"], axis = 1)
     )[:, 1]

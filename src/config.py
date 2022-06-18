@@ -10,5 +10,5 @@ config = {
     "debug": False,
 
     "chosen_model_type": "MLP",
-    "model_types": ["Logistic", "MLP", "Decision-tree", "Random-forest", "Grad-tree"],
+    "model_types": ["Logistic", "MLP", "Decision-tree", "Random-forest", "Grad-tree", "Xgboost"],
 }
