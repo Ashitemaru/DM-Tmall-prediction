@@ -9,7 +9,7 @@ config = {
     "result_path": "../data/submission.csv",
 
     "debug": True,
-    "use_cache": False,
+    "use_cache": True,
 
     "chosen_model_type": "MLP",
     "model_types": ["Logistic", "MLP", "Decision-tree", "Random-forest", "Grad-tree", "Xgboost"],

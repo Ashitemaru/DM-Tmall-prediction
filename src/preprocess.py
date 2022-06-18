@@ -91,6 +91,7 @@ def load_data():
 
         user_log = pd.merge(user_log, train, how = "left", on = ["user_id", "merchant_id"])
         user_log["label"].fillna(-1, inplace = True)
+        user_log["label"] = user_log["label"].astype("int8")
 
         user_log.to_csv(config["user_log_cache_path"])
 
