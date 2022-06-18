@@ -72,7 +72,6 @@ def attatch_feature(df, user_info, user_log):
     df = merge_col({ "item_id": "log_num" }, False)
     df = merge_col({ "item_id": "item_num" })
     df = merge_col({ "cat_id": "category_num" })
-    df = merge_col({ "time_stamp": "browse_days_num" })
 
     # Handle actions
     # Count out the times of action
