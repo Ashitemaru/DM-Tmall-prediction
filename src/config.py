@@ -7,7 +7,7 @@ config = {
     "train_path": "../data/data_format1/train_format1.csv",
     "result_path": "../data/submission.csv",
 
-    "debug": False,
+    "debug": True,
 
     "chosen_model_type": "MLP",
     "model_types": ["Logistic", "MLP", "Decision-tree", "Random-forest", "Grad-tree", "Xgboost"],

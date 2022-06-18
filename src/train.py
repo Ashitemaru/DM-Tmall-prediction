@@ -7,7 +7,7 @@ from model import get_model
 from config import config
 
 def dataset_preprocess(train: pd.DataFrame, test: pd.DataFrame, user_info, user_log):
-    # Slience! Witch!
+    # Silence! Witch!
     pd.options.mode.chained_assignment = None
 
     train_length = train.shape[0]
