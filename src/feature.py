@@ -89,8 +89,19 @@ def attatch_feature(df, user_info, user_log):
     x = x.drop(["action_type", "count"], axis = 1)
 
     # Sum all up & merge
+    y = x[["user_id", "merchant_id", "click_num", "purchase_num"]]
     x = x.groupby([x["user_id"], x["merchant_id"]]).sum()
+    x["pur_click"] = x["purchase_num"] / (x["click_num"] + x["purchase_num"]) # 同一用户商家，购买点击比
     df = pd.merge(df, x, how = "left", on = UM_PAIR)
+    tmp = y.groupby(y["user_id"]).sum()
+    tmp["user_pur_click"] = tmp["purchase_num"] / (tmp["click_num"] + tmp["purchase_num"]) # 同一用户，购买点击比 
+    tmp = tmp.drop(["merchant_id", "click_num", "purchase_num"], axis = 1)
+    df = pd.merge(df, tmp, how = "left", on = "user_id")
+    tmp = y.groupby(y["merchant_id"]).sum()
+    tmp["merchant_pur_click"] = tmp["purchase_num"] / (tmp["click_num"] + tmp["purchase_num"]) # 同一商家，购买点击比
+    tmp = tmp.drop(["user_id", "click_num", "purchase_num"], axis = 1)
+    df = pd.merge(df, tmp, how = "left", on = "merchant_id")
+
     if debug:
         check(df, "After attaching action")
 
