@@ -8,47 +8,51 @@ def check(df, caption, length = 10):
     print(df.head(length))
     print("========== CHECK END ==========")
 
-def attatch_feature(df, user_info, user_log):
-    """ Attach features in user_info & user_log into the train dataset.
-        Basic features including:
-        1. User age range
-        2. User gender
-        3. Number of logs of this user in this merchant
-        4. Number of categories of goods
-        5. Browse days
-        6. Number of clicks
-        7. Number of shopping cart addings
-        8. Number of purchasings
-        9. Number of favourite addings
-    """
-    print("Start attaching feature")
-    debug = config.get("debug", False)
-    if debug:
-        check(df, "Before feature-attaching")
-
-    # Join user_info
-    df = pd.merge(df, user_info, how = "left", on = "user_id")
-    if debug:
-        check(df, "After attaching user_info")
-
+def attatch_feature(df, user_info, user_log: pd.DataFrame):
     # Constant
+    USER = ["user_id"]
+    MERCHANT = ["merchant_id"]
     UM_PAIR = ["user_id", "merchant_id"]
+    debug = config.get("debug", False)
 
-    def merge_col(rename_dict, remove_duplicated = True, agg = "count", index_key_list = UM_PAIR):
-        """ This function will group the user_log & merge the result into the train set.
+    # Feature tables
+    user_feature = df[USER]
+    merchant_feature = df[MERCHANT]
+    union_feature = df[UM_PAIR]
+
+    def create_feature(mode, rename_dict, remove_duplicated = True, agg = "count", src = user_log):
+        """ This function will group the user_log & merge the result into the feature table.
+
+            @param mode {int}: Which feature table to merge in:
+                - 0 = USER
+                - 1 = MERCHANT
+                - 2 = UNION
 
             @param rename_dict {Dict[str: str]}: The keys of this dict are columns to be operated,
                 the values of this dict are the names which these columns to be renamed to.
+
             @param agg {str | lambda}: The aggregation function or description string.
-            @param remove_duplicated {boolean}: Whether to remove duplicated rows.
-                Default to True.
-            @param index_key_list {List[str]}: The list of keys to identify a row when grouping.
-                Used both when operating rows & when merging results.
+
+            @param remove_duplicated {boolean}: Whether to remove duplicated rows, default to True.
+
+            @param src {pd.DataFrame} The data source, default to user_log
 
             @return {pd.DataFrame}: Merged data frame.
         """
+        nonlocal user_feature, merchant_feature, union_feature
+        
+        if mode == 0:
+            index_key_list = USER
+        elif mode == 1:
+            index_key_list = MERCHANT
+        elif mode == 2:
+            index_key_list = UM_PAIR
+        else:
+            print("Bad feature mode. Aborted!")
+            raise Exception()
+
         extended_key_list = index_key_list + list(rename_dict.keys())
-        x = user_log[extended_key_list]
+        x = src[extended_key_list]
 
         if remove_duplicated: # Remove duplicated row
             x = x.groupby([x[k] for k in extended_key_list]).count()
@@ -62,16 +66,51 @@ def attatch_feature(df, user_info, user_log):
         x = x.rename(columns = rename_dict)
 
         # Merge
-        y = pd.merge(df, x, how = "left", on = index_key_list)
-        if debug:
-            check(y, f"After attaching {rename_dict[list(rename_dict.keys())[0]]}")
+        caption = f"After attaching {' & '.join([rename_dict[k] for k in rename_dict])}"
+        if mode == 0:
+            y = pd.merge(user_feature, x, how = "left", on = index_key_list)
+            if debug: check(y, caption)
+            user_feature = y
+        elif mode == 1:
+            y = pd.merge(merchant_feature, x, how = "left", on = index_key_list)
+            if debug: check(y, caption)
+            merchant_feature = y
+        elif mode == 2:
+            y = pd.merge(union_feature, x, how = "left", on = index_key_list)
+            if debug: check(y, caption)
+            union_feature = y
 
-        return y
+    # User features
+    create_feature(0, { "gender": "gender" }, False, "max", user_info)
+    create_feature(0, { "age_range": "age_range" }, False, "min", user_info)
 
-    # Join user_log
-    df = merge_col({ "item_id": "log_num" }, False)
-    df = merge_col({ "item_id": "item_num" })
-    df = merge_col({ "cat_id": "category_num" })
+    # Double 11 features
+    d11_user_log = user_log.filter(
+        (user_log["month"] == 11) &
+        user_log["day"].isin([10, 11, 12])
+    )
+    d11_user_purchase_log = d11_user_log.filter(
+        d11_user_log["action_type"] == 2
+    )
+
+    # D11 feature #1 - item & brand & category unique count
+    for mode, caption in zip([0, 1, 2], ["user", "merchant", "union"]):
+        # All action types
+        create_feature(mode, { "item_id": f"item_num_{caption}" }, True, "count", d11_user_log)
+        create_feature(mode, { "brand_id": f"brand_num_{caption}" }, True, "count", d11_user_log)
+        create_feature(mode, { "cat_id": f"category_num_{caption}" }, True, "count", d11_user_log)
+
+        # Only purchase
+        create_feature(mode, { "item_id": f"purchase_item_num_{caption}" }, True, "count", d11_user_purchase_log)
+        create_feature(mode, { "brand_id": f"purchase_brand_num_{caption}" }, True, "count", d11_user_purchase_log)
+        create_feature(mode, { "cat_id": f"purchase_category_num_{caption}" }, True, "count", d11_user_purchase_log)
+
+    # Attach the feature
+    df = pd.merge(df, user_feature, how = "left", on = USER)
+    df = pd.merge(df, merchant_feature, how = "left", on = MERCHANT)
+    df = pd.merge(df, union_feature, how = "left", on = UM_PAIR)
+
+    return df
 
     # Handle actions
     # Count out the times of action
