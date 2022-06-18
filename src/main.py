@@ -20,11 +20,13 @@ def main():
         test_df = read_test()
         print("Finish loading TEST DATA")
 
-        model_dict = train(train_df, user_info_df, user_log_df)
+        train_df, test_df = dataset_preprocess(train_df, test_df, user_info_df, user_log_df)
+        model_dict = train(train_df)
+        
         if config["chosen_model_type"] not in model_dict:
             print("You have chosen a bad model type. Check the config.py")
         else:
-            generate_answer(test_df, user_info_df, user_log_df, model_dict[config["chosen_model_type"]])
+            generate_answer(test_df, model_dict[config["chosen_model_type"]])
 
     else:
         print("Invalid mode. Check the config.py")
