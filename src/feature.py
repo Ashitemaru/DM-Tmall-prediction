@@ -1,4 +1,6 @@
+from cv2 import merge
 import pandas as pd
+from sympy import group
 
 from config import config
 
@@ -136,10 +138,89 @@ def attatch_feature(df, user_info, user_log: pd.DataFrame):
             if debug: check(y, caption)
             union_feature = y
 
+
+    # Figure 
+    print(user_log.head(10))
+    user_log["date"] = user_log["month"]*31 + user_log["day"]
+    print("========== FIGURE BEG ==========")
     # User features
     create_feature(0, { "gender": "gender" }, False, "max", user_info)
     create_feature(0, { "age_range": "age_range" }, False, "min", user_info)
+    # User figure3-6: merchant/item/brand/cat count
+    create_feature(mode = 0, rename_dict={"merchant_id": f"merchant_num"})
+    create_feature(mode = 0, rename_dict={"item_id": f"uitem_num" })
+    create_feature(mode = 0, rename_dict={"brand_id": f"ubrand_num"})
+    create_feature(mode = 0, rename_dict={"cat_id": f"ucat_num"})
+    # User figure7-10: action count
+    uvtn_map = {
+        0: f"uclick_num",
+        1: f"ucart_num",
+        2: f"upurchase_num",
+        3: f"ufavorite_num",
+    }
+    split_feature(mode = 0, column = "action_type", val_tgt_name_map = uvtn_map, src = user_log)
+    # User figure11: user purchase/click 
+    user_feature["upc_rate"] = user_feature["upurchase_num"]/(user_feature["uclick_num"]+ user_feature["upurchase_num"])
+    print("User feature OK!")
+    # User figure12: fisrt to last
+    create_feature(mode = 0, rename_dict={"date": f"ufirst_date"}, agg="min")
+    create_feature(mode = 0, rename_dict={"date": f"ulast_date"}, agg="max")
+    user_feature["udis_date"] = (user_feature["ulast_date"] - user_feature["ufirst_date"])*24
+    user_feature = user_feature.drop(["ufirst_date"], axis = 1)
 
+    # Merchant feature
+    # Merchant figure1-4: user/item/brand/cat count
+    create_feature(mode = 1, rename_dict={"user_id": f"user_num"})
+    create_feature(mode = 1, rename_dict={"item_id": f"mitem_num" })
+    create_feature(mode = 1, rename_dict={"brand_id": f"mbrand_num"})
+    create_feature(mode = 1, rename_dict={"cat_id": f"mcat_num"})
+    # Merchant figure5-8: action count
+    mvtn_map = {
+        0: f"mclick_num",
+        1: f"mcart_num",
+        2: f"mpurchase_num",
+        3: f"mfavorite_num",
+    }
+    split_feature(mode = 1, column = "action_type", val_tgt_name_map = mvtn_map, src = user_log)
+    # Merchant figure9: merchant purchase/click
+    merchant_feature["mpc_rate"] = merchant_feature["mpurchase_num"]/(merchant_feature["mclick_num"]+merchant_feature["mpurchase_num"])
+    # Merchant figure10: rebuy 
+    mrebuy_map = {
+        0: f"new_user",
+        1: f"dup_user",
+        -1: f"out_user"
+    }
+    split_feature(mode = 1, column = "label", val_tgt_name_map= mrebuy_map, src = user_log)
+    merchant_feature = merchant_feature.drop(["new_user", "out_user"], axis = 1)
+
+    print("Merchant feature OK!")
+
+    # User-Merchant feature
+    # User-Merchant figure1-3: item/brand/cat count
+    create_feature(mode = 2, rename_dict={"item_id": f"umitem_num" })
+    create_feature(mode = 2, rename_dict={"brand_id": f"umbrand_num"})
+    create_feature(mode = 2, rename_dict={"cat_id": f"umcat_num"})
+    # User-Merchant figure4-7: 
+    umvtn_map = {
+        0: f"umclick_num",
+        1: f"umcart_num",
+        2: f"umpurchase_num",
+        3: f"umfavorite_num",
+    }
+    split_feature(mode = 2, column = "action_type", val_tgt_name_map = umvtn_map, src = user_log)
+    # User-Merchant figure8: 
+    union_feature["umpc_rate"] = union_feature["umpurchase_num"]/(union_feature["umpurchase_num"]+union_feature["umclick_num"])
+
+    # User-Merchant figure9: fisrt to last
+    create_feature(mode = 2, rename_dict={"date": f"umfirst_date"}, agg="min")
+    create_feature(mode = 2, rename_dict={"date": f"umlast_date"}, agg="max")
+    union_feature["umdis_date"] = (union_feature["umlast_date"] - union_feature["umfirst_date"])*24
+    union_feature = union_feature.drop(["umfirst_date"], axis = 1)
+    print("Union feature OK!")
+
+    print("========== FIGURE END ==========")
+
+    '''
     # Double 11 features
     d11_user_log = user_log # [user_log["time_stamp"].isin([1110, 1111, 1112])]
     d11_user_purchase_log = d11_user_log[d11_user_log["action_type"] == 2]
@@ -176,11 +257,11 @@ def attatch_feature(df, user_info, user_log: pd.DataFrame):
         split_feature(mode, "action_type", vtn_map, d11_user_log)
 
     # D11 feature #3 - rebuy rate
-
+    '''
 
     # Attach the feature
     df = pd.merge(df, user_feature.drop_duplicates(), how = "left", on = USER)
-    # df = pd.merge(df, merchant_feature, how = "left", on = MERCHANT)
+    df = pd.merge(df, merchant_feature.drop_duplicates(), how = "left", on = MERCHANT)
     df = pd.merge(df, union_feature.drop_duplicates(), how = "left", on = UM_PAIR)
 
     print("Finish attaching features, info:")

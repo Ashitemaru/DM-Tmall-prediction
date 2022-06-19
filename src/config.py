@@ -12,5 +12,5 @@ config = {
     "use_cache": True,
 
     "chosen_model_type": "MLP",
-    "model_types": ["Logistic", "MLP", "Decision-tree", "Random-forest", "Grad-tree", "Xgboost"],
+    "model_types": ["Grad-tree"],
 }
