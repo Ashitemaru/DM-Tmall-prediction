@@ -21,7 +21,7 @@ def dataset_preprocess(train: pd.DataFrame, test: pd.DataFrame, user_info, user_
             .reset_index() \
             .drop(["index"], axis = 1)
 
-    featured_dataset = attatch_feature(concatted_dataset, user_info, user_log)
+    featured_dataset, _, _, _ = attatch_feature(concatted_dataset, user_info, user_log)
     featured_train = featured_dataset.head(train_length)
     featured_test = featured_dataset.tail(test_length)
 

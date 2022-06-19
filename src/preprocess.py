@@ -43,10 +43,6 @@ def read_user_log():
         return datetime.strptime(f"2016{x:04d}", "%Y%m%d").weekday()
     user_log["weekday"] = user_log["time_stamp"].apply(timestamp_to_weekday).astype("uint8")
 
-
-    # Drop useless timestamp
-    user_log = user_log.drop(["time_stamp"], axis = 1)
-
     print("Successfully load user log:")
     print(user_log.info())
     
@@ -93,7 +89,7 @@ def load_data():
         user_log["label"].fillna(-1, inplace = True)
         user_log["label"] = user_log["label"].astype("int8")
 
-        user_log.to_csv(config["user_log_cache_path"])
+        user_log.to_csv(config["user_log_cache_path"], index = False)
 
     return user_info, user_log, train, test
 
