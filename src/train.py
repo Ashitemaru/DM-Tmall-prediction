@@ -67,13 +67,12 @@ def train(train_data):
     return model_dict
 
 def generate_answer(test_data, model):
-    return
     test_data["prob"] = model.predict_proba(
         test_data.drop(["user_id", "merchant_id", "prob"], axis = 1)
     )[:, 1]
 
     print(test_data.head(10))
-    test_data.to_csv(config["result_path"], index = False)
+    test_data[["user_id", "merchant_id", "prob"]].to_csv(config["result_path"], index = False)
 
 if __name__ == "__main__":
     print("Use this module by import-ing it.")

@@ -11,6 +11,6 @@ config = {
     "debug": True,
     "use_cache": True,
 
-    "chosen_model_type": "MLP",
-    "model_types": ["Grad-tree"],
+    "chosen_model_type": "Xgboost",
+    "model_types": ["Grad-tree", "Xgboost"],
 }
