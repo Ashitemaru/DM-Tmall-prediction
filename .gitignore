@@ -1,5 +1,4 @@
 /data/*
 /test/*
 /src/__pycache__/*
-/image/*
 .DS_Store
