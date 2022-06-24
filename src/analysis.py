@@ -65,7 +65,7 @@ def analysis(user_info, user_log, train):
     analysis_user_info(user_info)
     analysis_user_log(user_log)
 
-    featured_train = attatch_feature(train, user_info, user_log)
+    #featured_train = attatch_feature(train, user_info, user_log)
     # TODO: Draw images
 
 if __name__ == "__main__":
