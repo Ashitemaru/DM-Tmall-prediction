@@ -14,25 +14,25 @@ def analysis_user_info(user_info):
             return user_info[user_info[key] == x][key].count()
 
     age_range_y = np.array(
-        [get_cnt(None, "age_range")] +
+        [get_cnt(None, "age_range") + get_cnt(0, "age_range")] +
         [get_cnt(i + 1, "age_range") for i in range(6)] +
         [get_cnt(7, "age_range") + get_cnt(8, "age_range")]
     )
     gender_y = np.array([
-        get_cnt(None, "gender"),
+        get_cnt(None, "gender")+get_cnt(2, "gender"),
         get_cnt(0, "gender"),
         get_cnt(1, "gender")
     ])
 
     age_range_x = np.array([
-        "null", "under 18", "18~24", "25~29",
+        "unknown", "under 18", "18~24", "25~29",
         "30~34", "35~39", "40~49", "over 50"
     ])
     gender_x = np.array(["unknown", "female", "male"])
 
     # Age hist
     plt.figure()
-    plt.bar(age_range_x, age_range_y, label = "Person count", color = 'b')
+    plt.bar(age_range_x, age_range_y, label = "Person count", color = 'b' )
     plt.legend()
     plt.title("User age range distribution")
     plt.savefig("../image/user_info_age_range.png")
@@ -47,7 +47,7 @@ def analysis_user_info(user_info):
     # Age and Gender
     plt.figure()
     colors = ['#0000FF', '#00FF00', '#FF0000']
-    sns.countplot(x='age_range', order = [0, 1, 2, 3, 4, 5, 6, 7, 8], hue='gender', data = user_info, palette=colors)
+    sns.countplot(x='age_range', order = [0, 1, 2, 3, 4, 5, 6, 7],  hue='gender', data = user_info, palette=colors)
     plt.legend()
     plt.title("User age-gender distribution")
     plt.savefig("../image/user_info_age-gender.png")
@@ -82,7 +82,7 @@ def analysis_user_log(user_log, df_train):
 
     plt.figure()
     plt.bar(action_x, action_y, label = "Log count", color = 'b')
-    plt.grid(alpha = 0.5)
+
     plt.legend()
     plt.title("Log action distribution")
     plt.savefig("../image/log_action.png")
@@ -122,12 +122,12 @@ def analysis_features(df_feature):
 
     #User-Merchant cart num
     plt.figure()
-    df_feature["umcart_num"].hist(range = [0, 5], bins = 10, color = "b")
-    df_feature[df_feature['label']==1]["umcart_num"].hist(range = [0, 5], bins = 10, color = "r")
+    df_feature["umcart_num"].hist(range = [0, 10], bins = 10, color = "b")
+    df_feature[df_feature['label']==1]["umcart_num"].hist(range = [0, 10], bins = 10, color = "r")
     plt.grid(alpha = 0.5)
     #plt.legend()
     plt.title("User-merchant num histogram")
-    plt.savefig("../image/user-merchant_click_num.png")
+    plt.savefig("../image/user-merchant_cart_num.png")
 
     #User-Merchant purchase num
     plt.figure()
@@ -149,8 +149,8 @@ def analysis_features(df_feature):
 
     #User-Merchant dis date
     plt.figure()
-    df_feature["umdis_date"].hist(range = [0, 180], bins = 18, color = "b")
-    df_feature[df_feature['label']==1]["umdis_date"].hist(range = [0, 180], bins = 18, color = "r")
+    df_feature["umdis_date"].hist(range = [0, 200], bins = 10, color = "b")
+    df_feature[df_feature['label']==1]["umdis_date"].hist(range = [0, 200], bins = 10, color = "r")
     plt.grid(alpha = 0.5)
     #plt.legend()
     plt.title("User-merchant num histogram")
