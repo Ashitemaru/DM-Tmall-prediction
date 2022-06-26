@@ -222,13 +222,101 @@ ROC-AUC score for model LGBM: 0.6990823937837837
 
 ### 模型选择具体分析
 
-`TODO`
+这里我们可以发现 Logistic、MLP 模型的表现并不优秀。
+
+Logistic 模型运算原理过于简单，贴合线性分类器。在部分条件下甚至会表现很差（见下面的分析）。
+
+MLP 由于全连接，并不能很好做到特征分类，而是每次都把所有特征考虑在内，不能很好利用我们作出的特征工程。实验也说明 MLP 的效果并不佳。
+
+剩余若干的模型原理均类似，最后我们根据实验结果选择了表现最好的 LGBM 作为最后的实验模型。
 
 ## 特征选择
 
 在上述设置的条件下，我们会在实验中删去部分特征并求取最后的 LGBM 模型评分，据此分析各个特征对最后结果的影响，上述结果报告如下。
 
-`TODO`
+### 用户画像特征
+
+用户画像特征这里特指 `age_range` 和 `gender` 两个字段，我们将这两个特征删除后得到下述实验结果（仅报告 ROC-AUC 评分，下述分析同）：
+
+```text
+ROC-AUC score for model Logistic: 0.621749746732174
+ROC-AUC score for model MLP: 0.5000510172846561
+ROC-AUC score for model Decision-tree: 0.6365814981648905
+ROC-AUC score for model Random-forest: 0.5900060132802016
+ROC-AUC score for model Grad-tree: 0.6934003396817718
+ROC-AUC score for model Xgboost: 0.6955380411590071
+ROC-AUC score for model LGBM: 0.6998834359655184
+```
+
+可以看出各个模型的评分均有下降，但是下降幅度并不明显。这说明在本次特征工程中对年龄和性别的提取运用并不全面。
+
+我们在该结果的基础上，尝试过将年龄和性别作出拆分处理。因为这两个特征，尤其是 `gender` 是枚举量，并不能作四则运算，或者其四则运算的定义和意义并不明确。这一部分详见代码 `src/feature.py` 中 `# SPLIT START` 注释处的处理。但是在经过拆分后，我们注意到 ROC-AUC 评分依然和原先相比甚至有所下降，该问题的原因我们暂且没有得到结论。
+
+### 记录总数
+
+我们删除 `log_num` 特征之后，得到的结果为：
+
+```text
+ROC-AUC score for model Logistic: 0.6269916005271292
+ROC-AUC score for model MLP: 0.4999897965430688
+ROC-AUC score for model Decision-tree: 0.6365814981648905
+ROC-AUC score for model Random-forest: 0.5923092264163831
+ROC-AUC score for model Grad-tree: 0.6942311006388524
+ROC-AUC score for model Xgboost: 0.6955441632331658
+ROC-AUC score for model LGBM: 0.6999477531505024
+```
+
+和用户画像特征类似，该特征删除后评分均有所下降，但是幅度不大。也就是说记录总数特征对结果有积极作用，但是作用并不明显。
+
+### 交互物品 / 品牌 / 种类数目
+
+删除 `item_num / brand_num / cat_num` 特征后，得到的结果为：
+
+```text
+ROC-AUC score for model Logistic: 0.6212986058730325
+ROC-AUC score for model MLP: 0.4998591697630565
+ROC-AUC score for model Decision-tree: 0.6502103457130771
+ROC-AUC score for model Random-forest: 0.59033931869619
+ROC-AUC score for model Grad-tree: 0.693038815430794
+ROC-AUC score for model Xgboost: 0.6933833671806999
+ROC-AUC score for model LGBM: 0.6972831670448811
+```
+
+可见删除特征后评分有所下降，但依然幅度不大。也就是说这些特征对结果有积极作用，但是作用依然不明显。
+
+### 点击 / 购买 / 加入购物车 / 加入收藏夹次数
+
+删除 `click_num / purchase_num / cart_num / favorite_num` 特征后（单击购买比特征也随之失效），得到的结果为：
+
+```text
+ROC-AUC score for model Logistic: 0.6188548360941784
+ROC-AUC score for model MLP: 0.49947401662333035
+ROC-AUC score for model Decision-tree: 0.6343135593771346
+ROC-AUC score for model Random-forest: 0.5888305621667018
+ROC-AUC score for model Grad-tree: 0.6842318673465624
+ROC-AUC score for model Xgboost: 0.6829595220172897
+ROC-AUC score for model LGBM: 0.6874067035488911
+```
+
+可以注意到评分下降幅度较大，所以表示用户、商家行为的数据对于分析复购概率有着较为明显的效果。
+
+### 日期相关特征
+
+删除所有和日期相关的特征后，得到的结果为：
+
+```text
+ROC-AUC score for model Logistic: 0.5129412665200244
+ROC-AUC score for model MLP: 0.5
+ROC-AUC score for model Decision-tree: 0.6390037795278226
+ROC-AUC score for model Random-forest: 0.5898863206147619
+ROC-AUC score for model Grad-tree: 0.6917831207269804
+ROC-AUC score for model Xgboost: 0.6929901478381127
+ROC-AUC score for model LGBM: 0.698430505542344
+```
+
+可以注意到评分并没有明显的下降，但是 Logistic 模型的评分严重下降。这说明了该数据具有积极作用，但是作用并不明显。
+
+我们认为日期数据的分布对 Logistic 模型是相当重要的。因为天猫商城的数据中 618、双十一、双十二等日期的数据明显较为突出，且更能描述用户行为特征。通过分析这些时段的特征表现对 Logistic 模型较为重要，即通过加入日期特征，让这些时段的数据具有较为高的权重，更有可能让原理简单、近似于线性分类器的 Logistic 模型得到贴合实际的结果。
 
 ## 最终测试集结果
 
