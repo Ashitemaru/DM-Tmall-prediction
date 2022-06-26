@@ -35,17 +35,47 @@
 
 ## 数据预处理可视化
 
-我们可以对预处理过后的数据进行一些简单的统计分析：
+我们可以对预处理过后的数据进行一些初步的统计分析：
 
 ### 用户特征
 
+`user_info_format1.csv`中给出了用户的性别、年龄信息：
 
+用户信息中将用户年龄分为了八组，对应未知以及七组确定的年龄段，做出柱状图如下：
 
-### 商家特征
+<img src="./image/user_info_age_range.png" alt="user_info_age_range" style="zoom:72%;" />
 
+可以看出，除去unknown对应的年龄未知组，用户数目最多的年龄分段为25-29岁；
 
+同样，做出用户性别的柱状图如下：
 
-### 用户-商家联合特征
+<img src="./image/user_info_gender.png" alt="user_info_gender" style="zoom:72%;" />
+
+可以看出，除去unknown对应的年龄未知组，女性用户数目远多于男性用户数目。
+
+联合用户性别、年龄特征做出柱状图：
+
+<img src="./image/user_info_age-gender.png" alt="user_info_age-gender" style="zoom:72%;" />
+
+从图中可以看出，在忽略年龄、性别未知的情况下，用户主体为年龄段在18-34岁的女性。
+
+### 日志特征
+
+`user_info_format1.csv`中给出了用户行为日志，每条日志提供了操作用户的ID，商家ID，商品ID，商品品类ID，商品品牌ID，购买时间，行为类型（包括点击、添加购物车、购买、添加收藏夹四种）。
+
+从背景中得知，这些日志数据收集于”双十一“前半年与”双十一“当天，针对日志时间，做出直方图如下：
+
+<img src="./image/log_time.png" alt="log_time" style="zoom:72%;" />
+
+可以看出，10月-11月分箱中日志数据最多，对应实际中”双十一“活动期间，用户的操作最多。
+
+针对日志的四种行为类型，做出柱状图如下：
+
+<img src="./image/log_action.png" alt="log_action" style="zoom:72%;" />
+
+从图中可以看出，绝大多数的日志对应的操作均为点击浏览；其次为购买和收藏，二者对应日志的数目大致相当；加入购物车的日志最少。
+
+以上数据的初步可视化仅对应较为直接的信息，而在后面特征工程中对特征进行进一步计算与提取之后，将针对用户-商家的特征做进一步的可视化操作。
 
 
 
@@ -64,7 +94,7 @@
 - `favorite_num`。表示加入收藏夹次数，意义同上述，整数类型
 - `pc_rate`。表示购买 / 单击比，意义同上述，浮点数类型
 - `last_date`。表示最近活动日期，整数类型
-- `dis_date`。表示最近和最远活动日期间隔时长，整数类型。
+- `dis_date`。表示最近和最早活动日期间隔时长，整数类型。
 
 其他的用户特征主要是用户画像数据，包含下述字段：
 
@@ -80,6 +110,48 @@
 - `dup_user`。表示该商家的重复买家总数，整数类型
 
 联合特征没有其他字段。
+
+### 特征可视化
+
+由于我们最终的结果会将一组用户-商家的对应关系作单位进行特征分析与聚类，接下来主要针对用户-商家联合特征进行可视化。
+
++ 用户-商家日志数直方图：
+
+<img src="./image/user-merchant_log_num.png" alt="user-merchant_log_num" style="zoom:72%;" />
+
+从图中可以看出，对于某用户在某商家的行为日志数，图像表现出从1-100左高右低，即大多数的用户在某个商家只有10条以内的行为日志
+
++ 用户-商家行为类型直方图：
+
+绘制出某用户在某商家的四种行为类型的计数，其中红色部分表示某用户是某商家的复购用户时，在该商家的四种行为类型的计数：
+
+（1）点击操作：
+
+<img src="./image/user-merchant_click_num.png" alt="user-merchant_click_num" style="zoom:60%;" />
+
+（2）加入购物车操作：
+
+<img src="./image/user-merchant_cart_num.png" alt="user-merchant_cart_num" style="zoom:60%;" />
+
+（3）购买操作：
+
+<img src="./image/user-merchant_purchase_num.png" alt="user-merchant_purchase_num" style="zoom:60%;" />
+
+（4）收藏操作：
+
+<img src="./image/user-merchant_favorite_num.png" alt="user-merchant_favorite_num" style="zoom:60%;" />
+
++ 用户-商家购买-点击比直方图：
+
+  <img src="./image/user-merchant_pc_rate.png" alt="user-merchant_pc_rate" style="zoom:72%;" />
+
++ 用户-商家最早-最后操作间隔直方图：
+
+  <img src="./image/user-merchant_distance_date.png" alt="user-merchant_distance_date" style="zoom:72%;" />
+
++ 相关度热力图：
+
+  ![user-merchant_heatmap](/Users/huangzhidian/Desktop/py/DataMining/DM-Tmall-prediction/image/user-merchant_heatmap.png)
 
 ## 数据挖掘模型和算法
 
