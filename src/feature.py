@@ -148,6 +148,7 @@ def attatch_feature(df, user_info, user_log: pd.DataFrame):
     create_feature(0, { "gender": "gender" }, False, "max", user_info)
 
     # SPLIT START
+    """
     for i in range(9):
         user_feature[f"age_{i}"] = 0
         user_feature[f"age_{i}"] = user_feature[f"age_{i}"].astype("uint8")
@@ -161,6 +162,7 @@ def attatch_feature(df, user_info, user_log: pd.DataFrame):
         x[f"gender_{user_feature.iloc[i]['gender']}"] = 1
         user_feature.iloc[i] = pd.Series(x)
     user_feature = user_feature.drop(["age_range", "gender"], axis = 1)
+    """
     # SPLIT END
     
     # User figure 1

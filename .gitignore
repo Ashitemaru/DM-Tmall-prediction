@@ -2,3 +2,4 @@
 /test/*
 /src/__pycache__/*
 .DS_Store
+/tmp.txt
