@@ -162,7 +162,7 @@ def attatch_feature(df, user_info, user_log: pd.DataFrame):
         user_feature.iloc[i] = pd.Series(x)
     user_feature = user_feature.drop(["age_range", "gender"], axis = 1)
     # SPLIT END
-
+    
     # User figure 1
     create_feature(mode = 0, rename_dict = { "item_id": f"log_num" }, remove_duplicated = False)
 
@@ -224,7 +224,6 @@ def attatch_feature(df, user_info, user_log: pd.DataFrame):
     }
     split_feature(mode = 1, column = "label", val_tgt_name_map = mrebuy_map, src = user_log)
     merchant_feature = merchant_feature.drop(["new_user", "out_user"], axis = 1)
-
     print("Merchant feature OK!")
 
     # User-Merchant feature
@@ -251,7 +250,6 @@ def attatch_feature(df, user_info, user_log: pd.DataFrame):
     create_feature(mode = 2, rename_dict = { "date": f"umlast_date" }, agg = "max")
     union_feature["umdis_date"] = (union_feature["umlast_date"] - union_feature["umfirst_date"]) * 24
     union_feature = union_feature.drop(["umfirst_date"], axis = 1)
-
     print("Union feature OK!")
     print("========== FIGURE END ==========")
 
