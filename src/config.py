@@ -1,5 +1,5 @@
 config = {
-    "mode": "train",
+    "mode": "analysis",
 
     "user_info_path": "../data/data_format1/user_info_format1.csv",
     "user_log_path": "../data/data_format1/user_log_format1.csv",
@@ -11,6 +11,6 @@ config = {
     "debug": True,
     "use_cache": True,
 
-    "chosen_model_type": "MLP",
-    "model_types": ["Logistic", "MLP", "Decision-tree", "Random-forest", "Grad-tree", "Xgboost"],
+    "chosen_model_type": "LGBM",
+    "model_types": ["Logistic", "MLP", "Decision-tree", "Random-forest", "Grad-tree", "Xgboost", "LGBM"],
 }

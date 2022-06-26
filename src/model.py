@@ -2,7 +2,9 @@ from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
+from lightgbm import LGBMClassifier
 from xgboost import XGBClassifier
+
 
 def get_model(model_type):
 	# TODO: More model types
@@ -29,6 +31,9 @@ def get_model(model_type):
 
 	elif model_type == "Xgboost":
 		return XGBClassifier()
+
+	elif model_type == "LGBM":
+		return LGBMClassifier()
 
 	else:
 		print("Unknown model type. Aborted.")
